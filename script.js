@@ -1,68 +1,44 @@
+// script.js
 
-document.addEventListener('DOMContentLoaded',function(){
-    const charactersDiv = document.getElementById('characters');
+document.addEventListener('DOMContentLoaded', function () {
+    const characterContainer = document.getElementById('characterContainer');
     const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    
-    
-    let character =[];
-    
-    function displayCharacters(charactersToDisplay){
-        charactersDiv.innerHTML ='';
-    
-        charactersToDisplay.forEach(character => {
-            const characterElement = document.createElement('div');
-            characterElement.classList.add('character');
-    
-            const name= document.createElement('h2');
-            name.textContent = character.name;
-    
-            const image = document.createElement('img');
-            image.src = character.image;
-    
-            characterElement.appendChild(name);
-            characterElement.appendChild(image);
-            charactersDiv.appendChild(characterElement);
-            
-        });
-    }
-    
-    
+    const houseFilter = document.getElementById('houseFilter');
+
     fetch('https://hp-api.onrender.com/api/characters')
-    .then(response => response.json())
-    .then(data => {
-        character = data;
-        
-        data.forEach(character => {
-            const characterElement = document.createElement('div');
-            characterElement.classList.add('character');
-    
-            const name = document.createElement('h2');
-            name.textContent = character.name;
-            
-            characterElement.appendChild(name);
-            charactersDiv.appendChild(characterElement);
-    
-            const image= document.createElement('img');
-            //image.src = character.name;//
-            image.src = character.image.replace(/^http:/,'https:');
-            characterElement.appendChild(name);
-            characterElement.appendChild(image);
-            charactersDiv.appendChild(characterElement);
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(character => {
+                characterContainer.innerHTML += createCharacterCard(character);
+            });
+
+            searchInput.addEventListener('input', filterCharacters);
+            houseFilter.addEventListener('change', filterCharacters);
+
+            function filterCharacters() {
+                const searchText = searchInput.value.toLowerCase();
+                const selectedHouse = houseFilter.value.toLowerCase();
+
+                const filteredCharacters = data.filter(character => {
+                    const nameMatches = character.name.toLowerCase().includes(searchText);
+                    const houseMatches = selectedHouse === '' || character.house.toLowerCase() === selectedHouse;
+                    return nameMatches && houseMatches;
+                });
+
+                characterContainer.innerHTML = '';
+                filteredCharacters.forEach(character => {
+                    characterContainer.innerHTML += createCharacterCard(character);
+                });
+            }
         });
-    })
-    .catch(error =>{
-        console.error('Error fetching data:',error);
-    });
-    
-    searchButton.addEventListener('click',function(){
-        const searchTerm = searchInput.value.toLowerCase();
-        const filteredCharacters = character.filter(character =>
-            character.name.toLowerCase().includes(searchTerm)
-            );
-            displayCharacters(filteredCharacters);
-    })
-    
-    
-    
-    });
+
+    function createCharacterCard(character) {
+        return `
+            <div class="character-card">
+                <img src="${character.image || 'default-image.jpg'}" alt="${character.name}" style="max-width: 100%;">
+                <h3>${character.name}</h3>
+                <p>${character.house}</p>
+            </div>
+        `;
+    }
+});
