@@ -7,10 +7,18 @@ h1{
     text-align: center;
 }
 
+#character{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+
 .character{
     border: 1px solid black;
-    padding: 1px;
+    padding: 5px;
     margin-bottom: 10px;
+    width: 200px;
 }
 
 .character img {
@@ -22,6 +30,7 @@ h1{
 
 .character h2{
     margin: 5px 0;
+    font-size: 16px;
     
 }
 
